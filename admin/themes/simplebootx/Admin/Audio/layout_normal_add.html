@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<admintpl file="header" />
+<head>
+    <meta charset="UTF-8">
+    <title>首页布局板块项添加</title>
+    <script type="text/html" id="photos-item-wrapper">
+        <li id="savedimage{id}">
+            <input id="photo-{id}" type="hidden" name="photos_url[]" value="{filepath}">
+            <input id="photo-{id}-name" type="text" name="photos_alt[]" value="{name}" style="width: 200px;" title="图片名称">
+            <img id="photo-{id}-preview" src="{url}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+            <a href="javascript:upload_one_image('图片上传','#photo-{id}');">替换</a>
+            <a href="javascript:$('#savedimage{id}').remove();">移除</a>
+        </li>
+    </script>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li><a href="{:U('layout_normal_list')}">首页板块列表</a></li>
+        <notempty name="info">
+            <li class="active"><a href="{:U('layout_normal_add')}">编辑板块</a></li>
+            <else/>
+            <li class="active"><a href="{:U('layout_normal_add')}">新增板块</a></li>
+        </notempty>
+    </ul>
+    <div class="row-fluid">
+        <form class="form-horizontal js-ajax-form" action="{:U('layout_normal_add_post')}" method="post">
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label">所属版块</label>
+                    <div class="controls">
+                        <select name="loft_type" id="loft_type" onchange="loft_change()" <notempty name="info">disabled="disabled"</notempty>>
+                            <foreach name="loft_list" item="vo" >
+                                <empty name="info">
+                                    <option value="{$vo.loft_type}">{$vo.loft_title}</option>
+                                    <else/>
+                                    <option value="{$vo.loft_type}" <if condition="$vo.loft_type eq $info['loft_type']">selected = "selected" </if>>{$vo.loft_title}</option>
+                                </empty>
+                            </foreach>
+                        </select>
+                    </div>
+                </div>
+                <empty name="info">
+                    <!--新增-->
+                    <div class="control-group" id="adv_img">
+                        <label class="control-label">选择首页展示的图片</label>
+                        <div class="controls">
+                            <ul id="photos" class="pic-list unstyled"></ul>
+                            <a href="javascript:upload_multi_image('图片上传','#photos','photos-item-wrapper');" class="btn btn-small btn-success">选择图片</a>
+                        </div>
+                        <label class="control-label">跳转链接</label>
+                        <div class="controls">
+                            <input name="adv_url"  type="text" placeholder="请填入跳转url"/>
+                        </div>
+                        <label class="control-label">标题</label>
+                        <div class="controls">
+                            <input name="adv_title"  type="text" placeholder="请输入标题"/>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="home2" style="display:none">
+                        <label class="control-label">选择首页展示的主题</label>
+                        <div class="controls">
+                            <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x1">全选<br/>
+                                <foreach name="album_list" item="vo" key="k">
+                                    <!--只显示主题-->
+                                    <if condition="$vo.class_type eq 1">
+                                    <input class="js-check" data-yid="js-check-y1" data-xid="js-check-x1" type="checkbox" name="album_ids[]" value="{$vo.id}"/>{$vo.album_name}<input name="album_sort_{$vo.id}" type="text" style="width: 20px;height: 10px" value="{$k+1}">&nbsp;&nbsp;
+                                    <if condition="($k+1)%10 eq 0"><br/></if>
+                                    </if>
+                                </foreach>
+                            <span class="form-required " style="color: red;">(框中的数字越大,则显示排序越靠前)</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="home4" style="display:none">
+                        <label class="control-label">选择首页展示的精读</label>
+                        <div class="controls">
+                            <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x5">全选<br/>
+                            <foreach name="album_list" item="vo" key="k">
+                                <!--只显示精读-->
+                                <if condition="$vo.class_type eq 2">
+                                    <input class="js-check" data-yid="js-check-y5" data-xid="js-check-x5" type="checkbox" name="album_ids[]" value="{$vo.id}"/>{$vo.album_name}<input name="album_sort_{$vo.id}" type="text" style="width: 20px;height: 10px" value="{$k+1}">&nbsp;&nbsp;
+                                    <if condition="($k+1)%10 eq 0"><br/></if>
+                                </if>
+                            </foreach>
+                            <span class="form-required " style="color: red;">(框中的数字越大,则显示排序越靠前)</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="home3" style="display:none">
+                        <label class="control-label">选择首页展示的难度版块</label>
+                        <div class="controls">
+                            <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x2">全选<br/>
+                            <foreach name="difficulty_list" item="vo" key="k">
+                                <input class="js-check" data-yid="js-check-y2" data-xid="js-check-x2" type="checkbox" name="difficulty_ids[]" value="{$vo.id}"/>难度{$vo.difficulty_degree}
+                                <if condition="($k+1)%10 eq 0"><br/></if>
+                            </foreach>
+                        </div>
+                    </div>
+
+                    <else/>
+                    <!--编辑-->
+                    <input type="hidden" name="loft_type" value="{$info.loft_type}"  />
+                    <if condition="$info.loft_type eq 'adv' ">
+                        <div class="control-group" id="adv_img">
+                            <label class="control-label">选择首页展示的图片</label>
+                            <div class="controls">
+                                <notempty name="info">
+                                    <div id="info_adv_img">
+                                        <img src="{$info.adv_img}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+                                        <input  type="hidden" name="photos_url_edit" value="{$info.adv_img}">
+                                    </div>
+                                </notempty>
+                                <ul id="photos" class="pic-list unstyled"></ul>
+                                <a href="javascript:upload_multi_image('图片上传','#photos','photos-item-wrapper');" class="btn btn-small btn-success">选择图片</a>
+                            </div>
+                            <label class="control-label">跳转链接</label>
+                            <div class="controls">
+                                <input name="adv_url"  type="text" value="{$info.adv_url}" placeholder="请填入跳转url"/>
+                            </div>
+                            <label class="control-label">标题</label>
+                            <div class="controls">
+                                <input name="adv_title"  type="text" value="{$info.adv_title}" placeholder="请输入标题"/>
+                            </div>
+                        </div>
+
+                        <else/>
+                        <notempty name="info.album_ids_checekd">
+                        <div class="control-group" id="album_list">
+                            <label class="control-label">选择首页展示的专辑</label>
+                            <div class="controls">
+                                <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x3">全选<br/>
+                                <foreach name="album_list" item="vo" key="k">
+                                    <if condition="$info.class_type eq 1">
+                                        <if condition="$vo.class_type eq 1"><!--只显示主题-->
+                                            <input class="js-check" data-yid="js-check-y3" data-xid="js-check-x3" type="checkbox" name="album_ids[]" value="{$vo.id}"  <in name="vo.id" value="$info.album_ids_checekd">checked</in> />{$vo.album_name}<input name="album_sort_{$vo.id}" type="text" style="width: 20px;height: 10px" value="<if condition="$album_sort[$vo['id']] eq ''">{$k+1}<else/>{$album_sort[$vo['id']]}</if>">&nbsp;&nbsp;
+                                            <if condition="($k+1)%10 eq 0"><br/></if>
+                                        </if>
+                                        <else/>
+                                        <if condition="$vo.class_type eq 2"><!--只显示精读-->
+                                            <input class="js-check" data-yid="js-check-y3" data-xid="js-check-x3" type="checkbox" name="album_ids[]" value="{$vo.id}"  <in name="vo.id" value="$info.album_ids_checekd">checked</in> />{$vo.album_name}<input name="album_sort_{$vo.id}" type="text" style="width: 20px;height: 10px" value="<if condition="$album_sort[$vo['id']] eq ''">{$k+1}<else/>{$album_sort[$vo['id']]}</if>">&nbsp;&nbsp;
+                                             <if condition="($k+1)%10 eq 0"><br/></if>
+                                        </if>
+                                    </if>
+
+                                </foreach>
+                                <span class="form-required " style="color: red;">(框中的数字越大,则显示排序越靠前)</span>
+                            </div>
+                        </div>
+                       </notempty>
+                       <notempty name="info.difficulty_ids_checekd">
+                           <div class="control-group" id="difficulty_list">
+                               <label class="control-label">选择首页展示的难度版块</label>
+                               <div class="controls">
+                                   <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x4">全选<br/>
+
+                                   <foreach name="difficulty_list" item="vo" key="k">
+                                       <input class="js-check" data-yid="js-check-y4" data-xid="js-check-x4" type="checkbox" name="difficulty_ids[]" value="{$vo.id}"  <in name="vo.id" value="$info.difficulty_ids_checekd">checked</in> />{$vo.difficulty_degree}
+                                       <if condition="($k+1)%10 eq 0"><br/></if>
+                                   </foreach>
+                                   <span class="form-required " style="color: red;">(框中的数字越大,则显示排序越靠前)</span>
+                               </div>
+                           </div>
+                       </notempty>
+                    </if>
+                </empty>
+                <!--隐藏-->
+                <input type="hidden" name="edit_id" value="{$info.id}"  type="hidden"/>
+            </fieldset>
+        <div class="form-actions">
+            <notempty name="info">
+                <button type="submit" class="btn btn-primary js-ajax-submit">确定更改</button>
+                <else/>
+                <button type="submit" class="btn btn-primary js-ajax-submit">添加</button>
+            </notempty>
+            <a class="btn" href="javascript:history.back(-1);">返回</a>
+        </div>
+        <!--隐藏字段-->
+        <input type="hidden" name="edit_id"   value="{$info.id}"/>
+        <input type="hidden" name="audio_size"   value="{$info.audio_size}"/>
+        <input type="hidden" name="audio_duration" value="{$info.audio_duration}"/>
+        </form>
+    </div>
+</div>
+<script src="__PUBLIC__/js/jquery.js"></script>
+<script src="__PUBLIC__/js/layer/layer.js"></script>
+<script src="__PUBLIC__/js/common.js"></script>
+<script>
+    function to_upload(){
+        layer.open({
+            type: 2,
+            area: ['480px', '400px'],
+            title: '音频上传',
+            fixed: false, //不固定
+            maxmin: true,
+            content: '{:U("admin/Audio/audio_upload_index")}'
+        });
+    }
+
+    function loft_change(){
+        var loft_type = $("#loft_type").val()
+        switch (loft_type){
+            case "adv":
+                $("#adv_img").show();
+                $("#home2").hide();
+                $("#home3").hide();
+                $("#home4").hide();
+                break;
+           /* case "home1":
+                $("#album_list").show();
+                $("#adv_img").hide();
+                $("#difficulty_list").hide();
+                break;*/
+            case "home2":
+                $("#home2").show();
+                $("#adv_img").hide();
+                $("#home3").hide();
+                $("#home4").hide();
+                break;
+            case "home3":
+                $("#home3").show();
+                $("#home2").hide();
+                $("#adv_img").hide();
+                $("#home4").hide();
+                break;
+            case "home4":
+                $("#home4").show();
+                $("#home2").hide();
+                $("#home3").hide();
+                $("#adv_img").hide();
+                break;
+        }
+    }
+
+
+</script>
+</body>
+</html>

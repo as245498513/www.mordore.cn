@@ -1,0 +1,132 @@
+<admintpl file="header" />
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="{:U('alive_percent_list')}">存活率统计</a></li>
+		</ul>
+		<form class="well form-search" method="post" action="{:U('alive_percent_list')}">
+			设备名:
+			<input type="text" name="dev_name" style="width: 120px;font-size:9px;" value="{$dev_name}" placeholder="设备名">&nbsp;
+			注册时间：
+			<input type="text" name="start_time" class="js-datetime" value="{$start_time|default=''}" style="width: 110px;" placeholder="起始时间" autocomplete="off">-
+			<input type="text" class="js-datetime" name="end_time" value="{$end_time|default=''}" style="width: 110px;" placeholder="结束时间" autocomplete="off"> &nbsp;
+			<input type="submit" class="btn btn-primary" value="搜索">
+			<!--<a class="btn btn-danger" href="javascript:void(0)" onclick="clearall()">清空</a>-->
+		</form>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<th width="50">序号</th>
+					<th>设备名</th>
+					<th>注册总数</th>
+					<th>存活总数</th>
+					<th>存活率</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<foreach name="list" item="vo">
+				<tr>
+					<td>{$vo.id}</td>
+					<td>{$vo.dev_name}</td>
+					<td>{$vo.retist_total}</td>
+					<td>{$vo.alive_total}</td>
+					<td>{$vo.alive_percent}</td>
+				</tr>
+				</foreach>
+			</tbody>
+		</table>
+		<div class="pagination">{$page}</div>
+	</div>
+	<script src="__PUBLIC__/js/common.js"></script>
+	<script src="__PUBLIC__/js/layer/layer.js"></script>
+    <script>
+		function toexcel(){
+			//勾选导出
+			var ids=[];
+			$("input[name^='ids']:checked").each(function(i){
+				ids[i]=$(this).val();
+			});
+			var in_str='';
+			for(var i=0;i<ids.length;i++){
+				if(i!=(ids.length-1)){
+					in_str += ids[i]+',';
+				}else{
+					in_str += ids[i];
+				}
+			}
+
+			var url = 'momo_regist_toexcel';
+
+				start_time = $("input[name=start_time]").val();
+				end_time  = $("input[name=end_time]").val();
+				register_username = $("input[name=register_username]").val();
+				sell_staus = $('#sell_staus option:selected') .val();
+				account_status = $('#account_status option:selected') .val();
+				if(start_time){
+					url += '/start_time/'+start_time;
+				}
+				if(end_time){
+					url += '/end_time/'+end_time;
+				}
+				if(register_username){
+					url += '/register_username/'+register_username;
+				}
+				if(sell_staus){
+					url += '/sell_staus/'+sell_staus;
+				}
+				if(account_status){
+					url += '/account_status/'+account_status;
+				}
+			if(in_str){
+				url += '/ids/'+in_str;
+			}
+
+			window.location.href="{:U('"+url+"')}";
+		}
+
+
+		//下载文件
+		function todownload(){
+			var ids=[];
+			var html = "<span>请将以下链接复制到迅雷下载</span><button class='btn btn-danger' id='btn_copy'>一键复制</button><br/><ol>";
+			var http_head = "http://10.10.10.10";
+			$("input[name^='ids']:checked").each(function(i){
+				ids[i]=$(this).val();
+				var download_url=$(this).parent().parent().children("td").eq(1).text();
+				html += "<li>"+http_head+download_url+"</li>";
+			});
+			html+="</ol>"
+			if(ids.length<1){
+				layer.alert("请先勾选下载");
+			}else{
+				layer.open({
+					type: 1,
+					skin: 'layui-layer-rim', //加上边框
+					area: ['420px', '240px'], //宽高
+					content: html
+				});
+			}
+		}
+
+		function change_sell_status(id,status){
+			$.ajax({
+				data:{id:id,status:status},
+				type: "post",
+				dataType:"json",
+				url:"{:U('momo_regist_edit')}",
+				success:function(data){
+					if(data.code==-1){
+						alert(data.message);
+					}else{
+						alert(data.message);
+						location.reload();
+					}
+				}
+			});
+		}
+
+	</script>
+</body>
+</html>

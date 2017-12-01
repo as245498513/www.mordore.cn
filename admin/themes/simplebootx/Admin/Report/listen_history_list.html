@@ -1,0 +1,44 @@
+<admintpl file="header" />
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="{:U('listen_history_list')}">收听记录</a></li>
+		</ul>
+		<form class="well form-search" method="post" action="{:U('listen_history_list')}">
+			微信昵称:
+			<input type="text" name="wx_user_name" style="width: 100px;font-size:9px;" value="{$wx_user_name}" placeholder="请输入微信昵称">&nbsp;
+			收听时间：
+			<input type="text" name="start_time" class="js-datetime" value="{$start_time|default=''}" style="width: 120px;" placeholder="起始时间" autocomplete="off">-
+			<input type="text" class="js-datetime" name="end_time" value="{$end_time|default=''}" style="width: 120px;" placeholder="结束时间" autocomplete="off"> &nbsp;
+			<input type="submit" class="btn btn-primary" value="搜索">
+		</form>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<th width="50">序号</th>
+					<th>微信昵称</th>
+					<th>音频名称</th>
+					<th>收听次数</th>
+					<th>最后一次收听时间</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<foreach name="list" item="vo">
+				<tr>
+					<td>{$vo.id}</td>
+					<td>{$vo.wx_nickname}</td>
+					<td>{$vo.audio_name}</td>
+					<td>{$vo.listen_count}</td>
+					<td>{:date("Y-m-d H:i",$vo['createtime'])}</td>
+				</tr>
+				</foreach>
+			</tbody>
+		</table>
+		<div class="pagination">{$page}</div>
+	</div>
+	<script src="__PUBLIC__/js/common.js"></script>
+	<script src="__PUBLIC__/js/layer/layer.js"></script>
+</body>
+</html>

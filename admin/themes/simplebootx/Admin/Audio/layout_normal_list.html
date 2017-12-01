@@ -1,0 +1,98 @@
+<admintpl file="header" />
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="{:U('layout_normal_list')}">首页版块列表</a></li>
+			<li>
+				<a href="{:U('layout_normal_add')}">新增版块</a>
+			</li>
+		</ul>
+		<form class="well form-search" method="post"  action="{:U('layout_normal_list')}</if> ">
+		    版块名称:
+		    <input type="text" name="loft_name" style="width: 120px;" value="{$loft_name}" placeholder="请输入版块名称">&nbsp;
+			<input type="submit" class="btn btn-primary" value="搜索">
+		</form>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<!--<th width="16"><label><input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x"></label></th>-->
+					<th>序号</th>
+					<th>所属版块</th>
+					<th>版块代号</th>
+					<th>版块内容</th>
+					<th>排序</th>
+					<th>是否显示</th>
+					<th width="120">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<foreach name="loft_list" item="vo">
+				<tr>
+					<!--<td><input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]" value="{$vo.id}"></td>-->
+					<td>{$vo.id}</td>
+					<td>{$vo.loft_title}</td>
+					<td>{$vo.loft_type}</td>
+					<td>
+						<if condition="$vo.loft_type eq 'adv'">
+							<img src="{$vo.adv_img}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+							<else/>
+							<notempty name="vo.album_list">
+								<foreach name="vo.album_list" item="v" key="k">
+									《{$v.album_name}》
+									<img src="{$v.album_cover}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">、
+									<if condition="($k+1)%2 eq 0"><br/></if>
+								</foreach>
+							</notempty>
+							<notempty name="vo.difficulty_list">
+								<foreach name="vo.difficulty_list" item="v" key="k">
+									《难度{$v.difficulty_degree}》
+									<img src="{$v.difficulty_cover}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">、
+									<if condition="($k+1)%2 eq 0"><br/></if>
+								</foreach>
+							</notempty>
+
+						</if>
+					</td>
+					<td>{$vo.loft_sort}</td>
+					<td><if condition="$vo.loft_display eq 1">显示<else/>隐藏</if></td>
+					<td>
+					    <a href="{:U('layout_normal_edit')}/edit_id/{$vo.id}">编辑</a>
+						<if condition="$vo.loft_type eq 'adv'">
+							|<a href="javascript:void(0)" onclick="batch_del('{$vo.id}')">删除</a>
+						</if>
+					</td>
+				</tr>
+				</foreach>
+			</tbody>
+		</table>
+		<div class="pagination">{$page}</div>
+	</div>
+	<script src="__PUBLIC__/js/common.js"></script>
+	<script src="__PUBLIC__/js/layer/layer.js"></script>
+	<script>
+		function batch_del(id){
+			var r=confirm("确定删除吗?");
+			if (r==true){
+				$.ajax({
+					data:{id:id},
+					type: "post",
+					dataType:"json",
+					url:"{:U('loft_item_del')}",
+					success:function(data){
+						console.log(data);
+						if(data.code==0){
+							alert(data.data+"条数据"+data.message);
+							location.reload();
+						}else if(data.code==-1){
+							alert(data.message);
+						}else{
+							alert("非法操作!");
+						}
+					}
+				});
+			}
+		}
+	</script>
+</body>
+</html>

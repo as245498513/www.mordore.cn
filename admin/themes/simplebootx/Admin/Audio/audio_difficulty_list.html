@@ -1,0 +1,74 @@
+<admintpl file="header" />
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="{:U('audio_difficulty_list')}">难度系数列表</a></li>
+			<li>
+				<a href="{:U('audio_difficulty_add')}">新增难度系数</a>
+			</li>
+		</ul>
+		<form class="well form-search" method="post"  action="{:U('audio_difficulty_list')}</if> ">
+		    难度系数:
+		    <input type="text" name="difficulty_degree" style="width: 120px;" value="{$difficulty_degree}" placeholder="请输入难度系数">&nbsp;
+			<input type="submit" class="btn btn-primary" value="搜索">
+		</form>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<!--<th width="16"><label><input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x"></label></th>-->
+					<th>序号</th>
+					<th>难度系数</th>
+					<th>首页封面</th>
+					<th>被关注总数</th>
+					<th>添加时间</th>
+					<th width="120">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<foreach name="list" item="vo">
+				<tr>
+					<!--<td><input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]" value="{$vo.id}"></td>-->
+					<td>{$vo.id}</td>
+					<td>{$vo.difficulty_degree}</td>
+					<td>
+						<img src="{$vo.difficulty_cover}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+					</td>
+					<td>{$vo.difficulty_like_count}</td>
+					<td>{:date('Y-m-d H:i',$vo['createtime'])}</td>
+					<td>
+					    <a href="{:U('audio_difficulty_edit')}/id/{$vo.id}">编辑</a>|
+						<a href="javascript:void(0)" onclick="batch_del('{$vo.id}')">删除</a>
+					</td>
+				</tr>
+				</foreach>
+			</tbody>
+		</table>
+		<div class="pagination">{$page}</div>
+	</div>
+	<script src="__PUBLIC__/js/common.js"></script>
+	<script src="__PUBLIC__/js/layer/layer.js"></script>
+	<script>
+		function batch_del(id){
+			var r=confirm("确定删除吗?");
+			if (r==true){
+				$.ajax({
+					data:{id:id},
+					type: "post",
+					dataType:"json",
+					url:"{:U('audio_difficulty_del')}",
+					success:function(data){
+						if(data.code==0){
+							alert(data.data+"条数据"+data.message);
+							location.reload();
+						}else{
+							alert("非法操作!");
+						}
+					}
+				});
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<admintpl file="header" />
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="{:U('wx_user_list')}">微信用户信息</a></li>
+		</ul>
+		<form class="well form-search" method="post" action="{:U('wx_user_list')}">
+			微信昵称:
+			<input type="text" name="wx_nickname" style="width: 100px;font-size:9px;" value="{$wx_nickname}" placeholder="请输入微信昵称">&nbsp;
+			授权时间：
+			<input type="text" name="start_time" class="js-datetime" value="{$start_time|default=''}" style="width: 120px;" placeholder="起始时间" autocomplete="off">-
+			<input type="text" class="js-datetime" name="end_time" value="{$end_time|default=''}" style="width: 120px;" placeholder="结束时间" autocomplete="off"> &nbsp;
+			<input type="submit" class="btn btn-primary" value="搜索">
+		</form>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<th width="50">序号</th>
+					<th>微信昵称</th>
+					<th>微信ID</th>
+					<th>微信openid</th>
+					<th>最后登录时间</th>
+					<th>授权时间</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<foreach name="list" item="vo">
+				<tr>
+					<td>{$vo.id}</td>
+					<td>{$vo.wx_nickname}</td>
+					<td>{$vo.wx_wechat_id}</td>
+					<td>{$vo.wx_wechat_openid}</td>
+					<td>{:date("Y-m-d H:i",$vo['last_login_time'])}</td>
+					<td>{:date("Y-m-d H:i",$vo['createtime'])}</td>
+				</tr>
+				</foreach>
+			</tbody>
+		</table>
+		<div class="pagination">{$page}</div>
+	</div>
+	<script src="__PUBLIC__/js/common.js"></script>
+	<script src="__PUBLIC__/js/layer/layer.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<admintpl file="header" />
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="{:U('album_data_analysis')}">专辑数据统计</a></li>
+		</ul>
+		<form class="well form-search" method="post" action="{:U('album_data_analysis')}">
+			专辑名称:
+			<input type="text" name="album_name" style="width: 100px;font-size:9px;" value="{$album_name}" placeholder="请输入专辑名称">&nbsp;
+			<input type="submit" class="btn btn-primary" value="搜索">
+		</form>
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<th width="50">序号</th>
+					<th>专辑名称</th>
+					<th>总关注数</th>
+					<th>专辑点播总数</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<foreach name="list" item="vo">
+				<tr>
+					<td>{$vo.id}</td>
+					<td>{$vo.album_name}</td>
+					<td>{$vo.album_like_count}</td>
+					<td>{$vo.listen_count}</td>
+				</tr>
+				</foreach>
+			</tbody>
+		</table>
+		<div class="pagination">{$page}</div>
+	</div>
+	<script src="__PUBLIC__/js/common.js"></script>
+	<script src="__PUBLIC__/js/layer/layer.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<admintpl file="header" />
+<head>
+    <meta charset="UTF-8">
+    <title>音频信息页</title>
+    <script type="text/html" id="photos-item-wrapper">
+        <li id="savedimage{id}">
+            <input id="photo-{id}" type="hidden" name="photos_url[]" value="{filepath}">
+            <input id="photo-{id}-name" type="text" name="photos_alt[]" value="{name}" style="width: 200px;" title="图片名称">
+            <img id="photo-{id}-preview" src="{url}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+            <a href="javascript:upload_one_image('图片上传','#photo-{id}');">替换</a>
+            <a href="javascript:$('#savedimage{id}').remove();">移除</a>
+        </li>
+    </script>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li><a href="{:U('audio_upload_list')}">音频列表</a></li>
+        <notempty name="info">
+            <li class="active"><a href="{:U('audio_info_index')}">音频编辑</a></li>
+            <else/>
+            <li class="active"><a href="{:U('audio_info_index')}">音频上传</a></li>
+        </notempty>
+
+    </ul>
+    <div class="row-fluid">
+        <form class="form-horizontal js-ajax-form" action="{:U('audio_info_post')}" method="post">
+        <table class="table table-bordered">
+
+            <tr>
+                <th>音频名称</th>
+                <td>
+                    <input id="audio_name" type="text" style="width:400px;" name="audio_name" id="title" required value="{$info.audio_name}.{$info.audio_type}" placeholder="点击上传" onclick="to_upload()" readonly="readonly"/>
+                    <span class="form-required " style="color: red;">(必填)</span>
+                </td>
+            </tr>
+            <tr>
+                <th>音频信息</th>
+                <td><strong>大小：</strong><span id="audio_size"><empty name="info">0Mb<else/>{$info.audio_size}Mb</empty></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <strong>长度：</strong><span id="audio_duration"><empty name="info">0秒<else/>{$info.audio_duration_str}</empty></span>
+                </td>
+            </tr>
+            <tr>
+                <th>朗读者</th>
+                <td><input type="text" name="audio_reciter" id="audio_reciter" value="{$info.audio_reciter}" style="width: 400px" placeholder="请输入音频朗读者姓名"></td>
+            </tr>
+            <tr>
+                <th>音频描述</th>
+                <td>
+                    <textarea name="audio_description" id="audio_description" style="width: 98%; height: 50px;" placeholder="请输入音频描述">{$info.audio_description}</textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <th>音频封面</th>
+                <td>
+                    <notempty name="info">
+                        <div id="info_audio_cover">
+                            <img src="{$info.audio_cover}" style="height:36px;width: 36px;" onclick="parent.image_preview_dialog(this.src);">
+                            <input  type="hidden" name="photos_url_edit" value="{$info.audio_cover}">
+                        </div>
+
+                    </notempty>
+                    <ul id="photos" class="pic-list unstyled">
+                    </ul>
+                    <a href="javascript:upload_multi_image('图片上传','#photos','photos-item-wrapper');" class="btn btn-small">选择图片</a>
+                </td>
+            </tr>
+            <tr>
+                <th>专辑分类</th>
+                <td>
+                        <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x">全选<br/>
+                        <empty name="info">
+                            <foreach name="album_list" item="vo" key="k">
+                                <input class="js-check" data-yid="js-check-y" data-xid="js-check-x" type="checkbox" name="album_ids[]" value="{$vo.id}"/>{$vo.album_name}&nbsp;&nbsp;
+                                <if condition="($k+1)%10 eq 0"><br/></if>
+                            </foreach>
+                            <else/>
+                            <foreach name="info.album_list" item="vo" key="k">
+                                <input class="js-check" data-yid="js-check-y" data-xid="js-check-x" type="checkbox" name="album_ids[]"  value="{$vo.id}" <in name="vo.id" value="$info.album_ids_checekd">checked</in>/>{$vo.album_name}&nbsp;&nbsp;
+                                <if condition="($k+1)%10 eq 0"><br/></if>
+                            </foreach>
+                        </empty>
+                    <span class="form-required " style="color: red;">(必填)</span>
+                </td>
+            </tr>
+
+            <tr>
+                <th>难度系数</th>
+                <td>
+                    <foreach name="difficulty_list" item="vo" key="k">
+                        <input  type="radio" name="difficulty" value="{$vo.difficulty_degree}" <if condition="$info.audio_difficulty eq $vo['difficulty_degree']">checked</if>/>难度{$vo.difficulty_degree}&nbsp;&nbsp;&nbsp;
+                    </foreach>
+                    <span class="form-required " style="color: red;">(必填)</span>
+                    <!--<empty name="info">-->
+
+                    <!--    <else/>
+                    </empty>-->
+
+                </td>
+            </tr>
+            <tr>
+                <th>精选50首列表</th>
+                <td>
+                    <empty name="info">
+                        <input type="radio" name="is_special" value="0" checked="checked"/>不显示
+                        <input type="radio" name="is_special" value="1" />显示
+                        <else/>
+                        <input type="radio" name="is_special" value="0" <if condition="$info.is_special eq 0 ">checked</if>/>不显示
+                        <input type="radio" name="is_special" value="1" <if condition="$info.is_special eq 1 ">checked</if> />显示
+                    </empty>
+                    <span class="form-required " style="color: red;">(显示,则在小程序精选50首列表中显示该音频)</span>
+                </td>
+            </tr>
+        </table>
+        <div class="form-actions">
+            <notempty name="info">
+                <button type="submit" class="btn btn-primary js-ajax-submit">确定更改</button>
+                <else/>
+                <button type="submit" class="btn btn-primary js-ajax-submit">添加</button>
+            </notempty>
+
+            <a class="btn" href="javascript:history.back(-1);">返回</a>
+        </div>
+        <!--隐藏字段-->
+        <!--<input type="text" name="audio_url"    value=""/>-->
+        <input type="hidden" name="edit_id"   value="{$info.id}"/>
+        <input type="hidden" name="audio_size"   value="{$info.audio_size}"/>
+        <input type="hidden" name="audio_duration" value="{$info.audio_duration}"/>
+        </form>
+    </div>
+</div>
+<script src="__PUBLIC__/js/jquery.js"></script>
+<script src="__PUBLIC__/js/layer/layer.js"></script>
+<script src="__PUBLIC__/js/common.js"></script>
+<script>
+    function to_upload(){
+        layer.open({
+            type: 2,
+            area: ['480px', '400px'],
+            title: '音频上传',
+            fixed: false, //不固定
+            maxmin: true,
+            content: '{:U("admin/Audio/audio_upload_index")}'
+        });
+    }
+</script>
+</body>
+</html>

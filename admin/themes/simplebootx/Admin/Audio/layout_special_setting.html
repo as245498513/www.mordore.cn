@@ -1,0 +1,30 @@
+<admintpl file="header"/>
+
+</head>
+<body>
+	<div class="wrap js-check-wrap">
+
+		<form class="form-horizontal js-ajax-form" action="{:U('layout_special_setting_post')}" method="post">
+			<fieldset>
+				<div class="control-group">
+					<label class="control-label">个性化首页算法设置：</label>
+					<div class="controls">
+						用户播放次数*
+						<input type="text" name="click_percent" value="{$info.click_percent}" id="click_percent" style="width: 30px;"/>
+						+用户分享次数*
+						<input type="text" name="share_percent" value="{$info.share_percent}" id="share_percent" style="width: 30px;"/>
+						<span class="form-required " style="color: red;">(框中分别填写所占比例,如90%则填90,并且两框相加需等于100)</span>
+					</div>
+				</div>
+
+			</fieldset>
+			<div class="form-actions">
+				<button type="submit" class="btn btn-primary js-ajax-submit">确定更改</button>
+				<a class="btn" href="javascript:history.back(-1);">关闭</a>
+			</div>
+		</form>
+	</div>
+	<script src="__PUBLIC__/js/jquery.js"></script>
+	<script src="__PUBLIC__/js/common.js"></script>
+</body>
+</html>
